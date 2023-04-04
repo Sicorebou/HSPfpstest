@@ -1,0 +1,164 @@
+#include "hgimg3.as" ;ライブラリインクルード
+
+screenx=640 : screeny=480
+screen 0,screenx,screeny
+
+hgini ;hg開始
+
+;音声読み込み
+mmload "stepf.wav",0
+mmload "stepb.wav",1
+mmload "zap.mp3",2
+
+;障害物生成
+addbox mdbx,32,32,1
+;マップデータ読み込み
+sdim a,1122
+bload "map2.txt",a
+notesel a ;デフォ作業
+
+;z行目x番目を取得
+z=0
+x=0
+
+repeat notemax
+noteget b,z
+ repeat notesize/notemax
+ x=cnt
+ s=strmid(b,x,1)
+ switch s
+case 1
+	regobj obbx,mdbx,OBJ_STATIC
+	bx=32*x-496 : bz=32*z-496
+	selpos obbx : objset3 bx,0,bz
+ swbreak
+swend
+ loop
+ z+=1
+loop
+
+;床のモデル作成
+texload "xyz.jpg"
+texload "tex.jpg"
+addmesh mdpl,32,32,16,1024,1024,1
+
+;弾モデル作成
+addplate mdsh,1,4,4,0,79,79,stat
+
+;床描画
+regobj obpl,mdpl,OBJ_GROUND
+selpos obpl : objset3 0,0,0
+
+;初期値 前後移動量
+angles=0.02 : movef=1.0 : moveb=0.6 : movesi=0.4
+
+;ジャンプ用の値など
+g=9.8 : vo=5.0 : jumpt=0.0
+
+;音声再生レート
+a=movef/moveb
+b=movef/movesi
+stepc=12 : steprf=23 : steprb=steprf*a : steprsi=steprf*b
+
+;発射レート
+shotc=0 : shotr=100 : shots=10.0
+
+;弾移動量保存用
+bulx=0 : bulz=0
+
+;カメラ初期位置
+selcang : objset1r 1,0
+selcpos : objset3 0,-6,0
+
+*main
+;---------------視点処理
+	stick ky,255+32768+131072+16384+65536
+	selcang : objgetfv an
+	
+	if ky&4 : an(1)-=angles
+	if ky&1 : an(1)+=angles
+	
+	;fvmax an,3.14,3.14,3.14     ;回転角の制限
+	;fvmin an,-3.14,-3.14,-3.14
+	objsetfv an
+	
+;---------------視点終了
+
+;---------------カメラ位置処理
+	selcpos : objgetfv po
+
+	dx=sin(an(1)/3.14*M_PI) ;視点角度から移動量計算
+	dz=cos(an(1)/3.14*M_PI)
+		
+	if ky&32768{ ;Wキー
+		;po(2)=z po(0)=x
+		;DirectX座標系に注意
+		po(0)-=dx*movef
+		po(2)-=dz*movef
+		;step音再生
+		stepc+=1
+		if stepc>steprf{
+			mmplay 0
+			stepc=0
+		}
+	}
+	
+	if ky&131072{ ; Sキー
+		po(0)+=dx*moveb
+		po(2)+=dz*moveb
+		;step音を再生
+		stepc+=1
+		if stepc>steprb{
+			mmplay 1
+			stepc=0
+		}
+	}
+
+	if ky&16384{ ; Aキー
+		po(0)-=dz*movesi
+		po(2)+=dx*movesi
+		;step音を再生
+		stepc+=1
+		if stepc>steprsi{
+			mmplay 1
+			stepc=0
+		}
+	}
+
+	if ky&65536{ ; Dキー
+		po(0)+=dz*movesi
+		po(2)-=dx*movesi
+		;step音を再生
+		stepc+=1
+		if stepc>steprsi{
+			mmplay 1
+			stepc=0
+		}
+	}
+		
+	selcpos : objsetfv po
+	
+;--------------位置終了
+
+;--------------撃
+	if ky&16{ ;SPACE
+	bulx=-dx*shots : bulz=-dz*shots
+		shotc+=1 ;大麻ー加算
+		if shotc>shotr{
+			regobj obsh,mdsh,OBJ_MOVE|OBJ_XFRONT
+			selpos obsh : objsetfv po ;弾初期位置
+			seldir obsh : objsetf3 bulx,0,bulz ;移動量
+			mmplay 2
+			stepc=0
+		}
+	}
+;--------------撃終了
+	selcpos : objgetstr po
+	title po
+	
+	hgdraw
+	hgsync 13
+
+	goto *main
+
+	hgbye
