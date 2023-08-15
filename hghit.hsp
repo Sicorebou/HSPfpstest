@@ -1,0 +1,498 @@
+
+#module
+  #deffunc loadground str file, array aa
+
+notesel np
+    noteload file
+   dim dd,notmax
+    repeat notemax
+        noteget dd(cnt), cnt
+    loop
+
+   repeat notemax
+   kekka=instr (dd(cnt),0,"Mesh {")
+   if kekka!-1{an=cnt}
+   loop   
+   
+  dotmax=double (dd(an+1))
+  
+  dim sx,dotmax
+  dim sy,dotmax
+  dim sz,dotmax
+   
+   repeat dotmax
+   data=dd(an+2+cnt)
+   
+   	kekka=instr (data,0,";")
+	kekkaA=kekka+1
+	sx0=strmid (data,0,kekka)
+	sx(cnt)=double(sx0)
+
+	kekka2=instr (data,kekkaA,";")
+	kekkaB=kekka2+1
+	 sy0=strmid (data,kekkaA,kekka2)	
+	 sy(cnt)=double(sy0)
+
+    kekkaC=kekkaA+kekkaB
+	kekka3=instr (data,kekkaC,";")
+	kekkaD=kekka3+1
+	sz0=strmid (data,kekkaC,kekka3)
+	sz(cnt)=double(sz0)
+   loop
+ 
+   meshmax=double (dd(an+3+dotmax))
+   dim n1d,meshmax
+   dim n2d,meshmax
+   dim n3d,meshmax
+   ddim aa,6,3,meshmax
+
+   
+   repeat meshmax
+      data=dd(an+4+dotmax+cnt)
+   
+   	kekka=instr (data,3,",")
+	kekkaA=kekka+1
+	n1=strmid (data,3,kekka)
+	n1d(cnt)=int(n1)
+
+    kekka2=instr (data,3+kekkaA,",")
+	kekkaB=kekka2+1
+	n2=strmid (data,3+kekkaA,kekka2)
+	n2d(cnt)=int(n2)
+
+    kekka3=instr (data,3+kekkaA+kekkaB,";")
+	kekkaC=kekka3+1
+	n3=strmid (data,3+kekkaA+kekkaB,kekka3)
+	n3d(cnt)=int(n3)
+
+    aa(0,0,cnt)=sx(n1d(cnt)):aa(0,1,cnt)=-1.0*sy(n1d(cnt)):aa(0,2,cnt)=sz(n1d(cnt)) 
+    aa(1,0,cnt)=sx(n2d(cnt)):aa(1,1,cnt)=-1.0*sy(n2d(cnt)):aa(1,2,cnt)=sz(n2d(cnt))
+    aa(2,0,cnt)=sx(n3d(cnt)):aa(2,1,cnt)=-1.0*sy(n3d(cnt)):aa(2,2,cnt)=sz(n3d(cnt))
+    aa(3,0,0)=meshmax
+   loop
+
+
+;;範囲決定
+   xx1=0.0:xx2=0.0:xx3=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  aa(0,0,cn)>xx1{
+    xx1=aa(0,0,cn)
+	}
+    if aa(1,0,cn)>xx2{
+	   xx2=aa(1,0,cn)
+	}
+	   if aa(2,0,cn)>xx3{
+	   xx3=aa(2,0,cn)
+	}
+  }else{
+ xx1=aa(0,0,0)
+ xx2=aa(1,0,0)
+ xx3=aa(2,0,0)
+  }
+   loop
+
+  if xx1>=xx2{xx12=xx1}else{xx12=xx2}  
+  if xx12>=xx3{xx123=xx12}else{xx123=xx3}  
+
+   aa(4,0,0)=xx123
+
+;;範囲決定small
+   xx1=0.0:xx2=0.0:xx3=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  aa(0,0,cn)<=xx1{
+    xx1=aa(0,0,cn)
+	}
+    if aa(1,0,cn)<=xx2{
+	   xx2=aa(1,0,cn)
+	}
+	   if aa(2,0,cn)<=xx3{
+	   xx3=aa(2,0,cn)
+	}
+  }else{
+ xx1=aa(0,0,0)
+ xx2=aa(1,0,0)
+ xx3=aa(2,0,0)
+  }
+   loop
+
+  if xx1<=xx2{xx12=xx1}else{xx12=xx2}  
+  if xx12<=xx3{xx123=xx12}else{xx123=xx3}  
+
+   aa(5,0,0)=xx123
+
+zz1=0.0:zz2=0.0:zz3=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  aa(0,2,cn)>=zz1{
+    zz1=aa(0,2,cn)
+	}
+    if aa(1,2,cn)>=zz2{
+	   zz2=aa(1,2,cn)
+	}
+	   if aa(2,2,cn)>=zz3{
+	   zz3=aa(2,2,cn)
+	}
+  }else{
+ zz1=aa(0,2,0)
+ zz2=aa(1,2,0)
+ zz3=aa(2,2,0)
+  }
+   loop
+
+  if zz1>=zz2{zz12=zz1}else{zz12=zz2}  
+  if zz12>=zz3{zz123=zz12}else{zz123=zz3}  
+
+   aa(4,2,0)=zz123
+
+;;範囲決定small
+  zz1=0.0:zz2=0.0:zz3=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  aa(0,2,cn)<=zz1{
+    zz1=aa(0,2,cn)
+	}
+    if aa(1,2,cn)<=zz2{
+	   zz2=aa(1,2,cn)
+	}
+	   if aa(2,2,cn)<=zz3{
+	   zz3=aa(2,2,cn)
+	}
+  }else{
+ zz1=aa(0,2,0)
+ zz2=aa(1,2,0)
+ zz3=aa(2,2,0)
+  }
+   loop
+
+  if zz1<=zz2{zz12=zz1}else{zz12=zz2}  
+  if zz12<=zz3{zz123=zz12}else{zz123=zz3}  
+
+   aa(5,2,0)=zz123
+   
+
+ return
+   #global
+
+
+#module
+		#deffunc  groundhit  array aa,var px,var py,var pz
+
+if px<aa(4,0,0)&px>aa(5,0,0)&pz<aa(4,2,0)&pz>aa(5,2,0){
+repeat aa(3,0,0)
+cn=cnt
+qy=0.5
+hitf=0//hitfをリセット
+
+VV1=((aa(1,0,cn)-aa(0,0,cn))*(pz-aa(0,2,cn)))-((aa(1,2,cn)-aa(0,2,cn))*(px-aa(0,0,cn)))  ;;;;;;;;;;;;
+VV2=((aa(2,0,cn)-aa(1,0,cn))*(pz-aa(1,2,cn)))-((aa(2,2,cn)-aa(1,2,cn))*(px-aa(1,0,cn)))
+VV3=((aa(0,0,cn)-aa(2,0,cn))*(pz-aa(2,2,cn)))-((aa(0,2,cn)-aa(2,2,cn))*(px-aa(2,0,cn)))//点Ｐが三角形内部（ＸＺ平面上）に存在するか判定
+if VV1<0{hitf=hitf-1}else{hitf=hitf+1}
+if VV2<0{hitf=hitf-1}else{hitf=hitf+1}
+if VV3<0{hitf=hitf-1}else{hitf=hitf+1}
+if (hitf=3)|(hitf=-3){ //外積が三つとも同符合であれば点は三角形上に存在する。
+V1X=aa(2,0,cn)-aa(0,0,cn) :V1Y=aa(2,1,cn)-aa(0,1,cn):V1Z=aa(2,2,cn)-aa(0,2,cn)
+V2X=aa(1,0,cn)-aa(0,0,cn):V2Y=aa(1,1,cn)-aa(0,1,cn) :V2Z=aa(1,2,cn)-aa(0,2,cn)
+nX0=((V1Y*V2Z)-(V1Z*V2Y)):nY0=((V1Z*V2X)-(V1X*V2Z)):nZ0=((V1X*V2Y)-(V1Y*V2X)) //面の法線ベクトルを所得
+  VN=sqrt((nX0*nX0)+(nY0*nY0)+(nz0*nz0)) //法線ベクトルの長さを求める
+ nX=nX0/VN 
+ ny=ny0/VN 
+ nz=nz0/VN  //法線ベクトルを正規化
+ PN=(qy*nY) //オブジェクトからのベクトルと法線との内積
+ PL=((aa(0,0,cn)-px)*nx)+((aa(0,1,cn)-py)*ny)+((aa(0,2,cn)-pz)*nz)//面と点Ｐとの距離
+ TT=PL/PN
+ if TT>-1.0&TT<1.0{
+py=(py-0.2+(qy*TT))
+break
+}}//面との交点Y座標所得
+loop
+}
+   return
+
+	 #global
+
+#module
+  #deffunc loadwall str file, array VV   //Ｘファイルを壁データとして読み込む
+
+notesel np
+   
+    noteload file
+   dim dd,notmax
+    repeat notemax
+        noteget dd(cnt), cnt
+    loop
+
+   repeat notemax
+   kekka=instr (dd(cnt),0,"Mesh {")
+   if kekka!-1{an=cnt}
+   loop   
+   
+  dotmax=double (dd(an+1))
+  
+  dim sx,dotmax
+  dim sy,dotmax
+  dim sz,dotmax
+   
+   repeat dotmax
+   data=dd(an+2+cnt)
+   
+   	kekka=instr (data,0,";")
+	kekkaA=kekka+1
+	sx0=strmid (data,0,kekka)
+	sx(cnt)=double(sx0)
+
+	kekka2=instr (data,kekkaA,";")
+	kekkaB=kekka2+1
+	 sy0=strmid (data,kekkaA,kekka2)	
+	 sy(cnt)=double(sy0)
+
+    kekkaC=kekkaA+kekkaB
+	kekka3=instr (data,kekkaC,";")
+	kekkaD=kekka3+1
+	sz0=strmid (data,kekkaC,kekka3)
+	sz(cnt)=double(sz0)
+   loop
+ 
+   meshmax=double (dd(an+3+dotmax))
+   dim n1d,meshmax
+   dim n2d,meshmax
+   dim n3d,meshmax
+   ddim VV,6,2,meshmax
+
+   
+   repeat meshmax
+      data=dd(an+4+dotmax+cnt)
+   
+   	kekka=instr (data,3,",")
+	kekkaA=kekka+1
+	n1=strmid (data,3,kekka)
+	n1d(cnt)=int(n1)
+
+    kekka2=instr (data,3+kekkaA,",")
+	kekkaB=kekka2+1
+	n2=strmid (data,3+kekkaA,kekka2)
+	n2d(cnt)=int(n2)
+
+    kekka3=instr (data,3+kekkaA+kekkaB,";")
+	kekkaC=kekka3+1
+	n3=strmid (data,3+kekkaA+kekkaB,kekka3)
+	n3d(cnt)=int(n3)
+
+    ax(cnt)=sx(n1d(cnt)):ay(cnt)=-1.0*sy(n1d(cnt)):az(cnt)=sz(n1d(cnt)) 
+    bx(cnt)=sx(n2d(cnt)):by(cnt)=-1.0*sy(n2d(cnt)):bz(cnt)=sz(n2d(cnt))
+    cx(cnt)=sx(n3d(cnt)):cy(cnt)=-1.0*sy(n3d(cnt)):cz(cnt)=sz(n3d(cnt))
+
+   
+   nx0=((by(cnt)-ay(cnt))*(cz(cnt)-az(cnt)))-((bz(cnt)-az(cnt))*(cy(cnt)-ay(cnt)))
+   nz0=((bx(cnt)-ax(cnt))*(cy(cnt)-ay(cnt)))-((by(cnt)-ay(cnt))*(cx(cnt)-ax(cnt)))
+
+   nn=sqrt((nx0*nx0)+(nz0*nz0))
+   VV(2,0,cnt)=-nx0/nn  :VV(2,1,cnt)=-nz0/nn
+   
+    
+   if (ax(cnt)=bx(cnt))&(az(cnt)=bz(cnt)){VV(0,0,cnt)=ax(cnt) :VV(0,1,cnt)=az(cnt):VV(1,0,cnt)=cx(cnt):VV(1,1,cnt)=cz(cnt)}
+   if (ax(cnt)=cx(cnt))&(az(cnt)=cz(cnt)){vv(0,0,cnt)=ax(cnt) :Vv(0,1,cnt)=az(cnt):vv(1,0,cnt)=bx(cnt):vv(1,1,cnt)=bz(cnt)}
+   if (cx(cnt)=bx(cnt))&(cz(cnt)=bz(cnt)){vv(0,0,cnt)=bx(cnt) :Vv(0,1,cnt)=bz(cnt):vv(1,0,cnt)=ax(cnt):vv(1,1,cnt)=az(cnt)}
+
+ loop
+
+//範囲選択
+   xx1=0.0:xx2=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  vv(0,0,cn)>=xx1{
+    xx1=vv(0,0,cn)
+	}
+    if vv(1,0,cn)>=xx2{
+	   xx2=vv(1,0,cn)
+	}
+
+  }else{
+ xx1=vv(0,0,0)
+ xx2=vv(1,0,0)
+
+  }
+   loop
+
+  if xx1>=xx2{xx12=xx1}else{xx12=xx2}  
+
+
+   vv(4,0,0)=xx12
+ //範囲選択small
+   xx1=0.0:xx2=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  vv(0,0,cn)<=xx1{
+    xx1=vv(0,0,cn)
+	}
+    if vv(1,0,cn)<=xx2{
+	   xx2=vv(1,0,cn)
+	}
+
+  }else{
+ xx1=vv(0,0,0)
+ xx2=vv(1,0,0)
+
+  }
+   loop
+
+  if xx1<=xx2{xx12=xx1}else{xx12=xx2}  
+
+
+   vv(5,0,0)=xx12
+
+ //範囲選択Z
+   zz1=0.0:zz2=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  vv(0,1,cn)>=zz1{
+    zz1=vv(0,1,cn)
+	}
+    if vv(1,1,cn)>=zz2{
+	   zz2=vv(1,1,cn)
+	}
+
+  }else{
+ zz1=vv(0,1,0)
+ zz2=vv(1,1,0)
+
+  }
+   loop
+
+  if zz1>=zz2{zz12=zz1}else{zz12=zz2}  
+
+
+   vv(4,1,0)=zz12
+
+ //範囲選択Zsmall
+    zz1=0.0:zz2=0.0
+   repeat meshmax
+   cn=cnt
+   if cn>0{
+	 if  vv(0,1,cn)<=zz1{
+    zz1=vv(0,1,cn)
+	}
+    if vv(1,1,cn)<=zz2{
+	   zz2=vv(1,1,cn)
+	}
+
+  }else{
+ zz1=vv(0,1,0)
+ zz2=vv(1,1,0)
+
+  }
+   loop
+
+  if zz1<=zz2{zz12=zz1}else{zz12=zz2}  
+
+
+   vv(5,1,0)=zz12
+ 
+    vv(3,0,0)=meshmax
+  
+ return
+   #global
+
+
+
+#module
+
+  #deffunc  wallhit  array ABN,var fx ,var fz,var px,var pz   //壁データとの当たり判定を行う
+
+
+     lx=abn(4,0,0)+absf(vx)  :sx=abn(5,0,0)-absf(vx) : lz=abn(4,1,0)+absf(vz):sz=abn(5,1,0)-absf(vz)
+
+   if  (px<lx)&(px>sx)&(pz<lz)&(pz>sz){
+
+      repeat abn(3,0,0) 
+      cn=cnt
+     naiseki1=((fx*abn(2,0,cn))+(fz*abn(2,1,cn)))
+     naiseki2=((abn(0,0,cn)-px)*abn(2,0,cn))+((abn(0,1,cn)-pz)*abn(2,1,cn))
+  
+   if naiseki1<0.0{
+    TT=naiseki2/naiseki1
+     if TT>-1.0&&TT<1.0{
+
+    XX=px+(TT*fx)
+    ZZ=pz+(TT*fz)
+     fvx=((XX-abn(0,0,cn))*(XX-abn(1,0,cn)))+((ZZ-abn(0,1,cn))*(ZZ-abn(1,1,cn)))    
+  if fvx<=0.0 {                  //交点がＡ，Ｂと作るベクトルの内積がマイナス値の場合
+
+      px=px-(naiseki1*abn(2,0,cn))
+      pz=pz-(naiseki1*abn(2,1,cn))
+   
+      }
+      
+      }}
+
+    
+      loop
+    }
+      
+ //もしＴＴが0以上1未満であればベクトルは線分ＡＢと交差しているので、移動量の法線方向成分のマイナス値を加算し、法線移動成分を打ち消す。
+   return
+  #global
+
+ #module
+  
+  #deffunc  meshhit  array aa,var px,var py,var pz ,var vx,var vy,var vz,var flag
+
+
+
+   lx=aa(4,0,0)+absf(vx)  :sx=aa(5,0,0)-absf(vx) : lz=aa(4,2,0)+absf(vz):sz=aa(5,2,0)-absf(vz)
+
+   if  (px<lx)&(px>sx)&(pz<lz)&(pz>sz){
+
+repeat aa(3,0,0)
+cn=cnt
+
+
+
+V1X=aa(2,0,cn)-aa(0,0,cn) :V1Y=aa(2,1,cn)-aa(0,1,cn):V1Z=aa(2,2,cn)-aa(0,2,cn)
+V2X=aa(1,0,cn)-aa(0,0,cn):V2Y=aa(1,1,cn)-aa(0,1,cn) :V2Z=aa(1,2,cn)-aa(0,2,cn)
+nX0=((V1Y*V2Z)-(V1Z*V2Y)):nY0=((V1Z*V2X)-(V1X*V2Z)):nZ0=((V1X*V2Y)-(V1Y*V2X)) //面の法線ベクトルを所得
+  VN=sqrt((nX0*nX0)+(nY0*nY0)+(nz0*nz0)) //法線ベクトルの長さを求める
+ nX=nX0/VN 
+ ny=ny0/VN 
+ nz=nz0/VN  //法線ベクトルを正規化
+ PN=(vx*nx)+(vy*nY)+(nz*vz) //オブジェクトからのベクトルと法線との内積
+ PL=((aa(0,0,cn)-px)*nx)+((aa(0,1,cn)-py)*ny)+((aa(0,2,cn)-pz)*nz)//面と点Ｐとの距離
+ TT=PL/PN
+ if TT>0.0&TT<1.0{
+px=(px+(vx*TT))	 
+py=(py+(vy*TT))
+pz=(pz+(vz*TT))
+AAx=(py-aa(1,1,cn))*(aa(2,2,cn)-aa(1,2,cn))-(pz-aa(1,2,cn))*(aa(2,1,cn)-aa(1,1,cn))
+AAy=(pz-aa(1,2,cn))*(aa(2,0,cn)-aa(1,0,cn))-(px-aa(1,0,cn))*(aa(2,2,cn)-aa(1,2,cn))
+AAz=(px-aa(1,0,cn))*(aa(2,1,cn)-aa(1,1,cn))-(py-aa(1,1,cn))*(aa(2,0,cn)-aa(1,0,cn))
+BBx=(py-aa(0,1,cn))*(aa(1,2,cn)-aa(0,2,cn))-(pz-aa(0,2,cn))*(aa(1,1,cn)-aa(0,1,cn))
+BBy=(pz-aa(0,2,cn))*(aa(1,0,cn)-aa(0,0,cn))-(px-aa(0,0,cn))*(aa(1,2,cn)-aa(0,2,cn))
+BBz=(px-aa(0,0,cn))*(aa(1,1,cn)-aa(0,1,cn))-(py-aa(0,1,cn))*(aa(1,0,cn)-aa(0,0,cn))
+ccx=(py-aa(2,1,cn))*(aa(0,2,cn)-aa(2,2,cn))-(pz-aa(2,2,cn))*(aa(0,1,cn)-aa(2,1,cn))
+ccy=(pz-aa(2,2,cn))*(aa(0,0,cn)-aa(2,0,cn))-(px-aa(2,0,cn))*(aa(0,2,cn)-aa(2,2,cn))
+ccz=(px-aa(2,0,cn))*(aa(0,1,cn)-aa(2,1,cn))-(py-aa(2,1,cn))*(aa(0,0,cn)-aa(2,0,cn))
+DotAB=(AAx*BBx)+(AAy*BBy)+(AAz*BBz)
+DotBC=(BBx*CCx)+(BBy*CCy)+(BBz*CCz)
+DotCA=(CCx*AAx)+(CCy*AAy)+(CCz*AAz)
+if DotAB>0&DotBC>0&DotCA>0{
+flag=1
+break
+}else{
+flag=0
+}
+
+}
+
+loop
+}
+
+   return
+	#global
